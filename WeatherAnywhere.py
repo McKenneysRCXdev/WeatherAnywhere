@@ -1,17 +1,24 @@
-from types import NoneType
 import numpy as np
-import urllib
 import requests as r
 import datetime as d
 import csv
 import Calendar
 
-#Get weather data from Weather Underground from a specified location and on a certain date.
+#The intent of this code is to use WeatherUndergound as a tool to web-scrape historic weather data from their site
+#and export the data to a CSV. Right now, the latitude and longintude need to be known, and the dates are picked before
+#the function is called. We would like to eventually add a zip-code repository to allow for the latitude and longitude to
+#be found more easily.
+
+#Example URL
 #'https://api.weather.com/v1/geocode/33.7788887/-84.52111053/observations/historical.json?apiKey=6532d6454b8aa370768e63d6ba5a832e&startDate=20190206&endDate=20190206&units=e')
-#def convertZipcodeToCoord(Zipcode): #later - convert zip code to lat, long coordinates
 
 def buildNewObservationArray(longitude, latitude, startDate, endDate):
-    #Build an array for the day in question.. If a time matches
+    #This function builds an array for the day in question. If time is within 1 hour of start time or end time,
+    #it is included in the array that is exported via CSV. Note, the end time needs to be at least 1 minute more than the
+    #start time.
+    if startDate == endDate:
+        print("End time needs to be at least 1 minute more than start time")
+        return
     csvFileName = "WeatherUndergroundData.csv"
     csvFile = open(csvFileName, 'wb')
     writer = csv.writer(csvFile)
@@ -19,8 +26,6 @@ def buildNewObservationArray(longitude, latitude, startDate, endDate):
     pointsOfInterest = ['valid_time_gmt', 'obs_name', 'temp', 'rh', 'dewPt', 'feels_like', 'pressure', 'wspd', 'wx_phrase', 'vis', 'wdir_cardinal', 'precip_hrly', 'precip_total' ]
     weatherTable = ['Time', 'Station', 'Temperature', 'Relative Humidity', 'Dew Point', 'Feels Like', 'Pressure', 'Wind Speed', 'Condition', 'Visibility', 'Wind Direction', 'Precipitation rate', 'Precipitation Accumulation']
     writer.writerow(weatherTable)
-    specificTimeTable = weatherTable
-    foundTime = False
     dontAddToBuildRow = False
     for stamp in JSONdata:
         buildRow = np.zeros([1,len(pointsOfInterest)],dtype = object)
@@ -46,18 +51,14 @@ def buildNewObservationArray(longitude, latitude, startDate, endDate):
             if dontAddToBuildRow != True:
                 writer.writerow(buildRow[0,:])
                 weatherTable = np.vstack([weatherTable,buildRow])
-            if foundTime == True:
-                specificTimeTable = np.vstack([specificTimeTable,buildRow])
-            foundTime = False
             dontAddToBuildRow = False
     csvFile.close()
-    print(specificTimeTable)
-    print('------------------')
     print(weatherTable)
     return weatherTable
 
 def getObservationArray(longitude, latitude, startingDate, endingDate):
-    #inputs for startingDate and endingDate need to be consistent with datetime library
+    #Called in buildNewObservationArray, this function exports a JSON array obtained from Weather Underground.
+    #The export contains raw data that is compiled from multipe "gets" from the URL.
     observationArray = []
     url = 'https://api.weather.com/v1/geocode/' + longitude + '/' + latitude + '/observations/historical.json?'
     timeDifference = endingDate - startingDate
@@ -90,7 +91,8 @@ def getObservationArray(longitude, latitude, startingDate, endingDate):
 
 
 def timeConversion(WUtime_gmt):
-    #converts weather underground's time to an actual time. Note: weather underground's time clock starts 1/1/1970 at 0:00
+    #Used in createNewObservationArray, this converts weather underground's time to an actual time.
+    #Note: weather underground's time clock starts 1/1/1970 at 0:00
     secPerMin = 60.
     minPerHour = 60.
     hrsPerDay = 24.
@@ -103,20 +105,14 @@ def timeConversion(WUtime_gmt):
     return str(currentTime)
 
 
-def pickDates():   #for standardizing calendar input
-    execfile('Calendar.py')
-# StartDate = None
-# while StartDate is None:
-#     StartDate = Calendar.startDate()
-# print(StartDate)
-
-#pickDates()
-#execfile('Calendar.py')
+# def pickDates():
+#     #I found a code that creates a pop up where the user can type in the date and when hitting enter, the date is shown
+#     #in the console. This might be useful in trying to standardize the date inputs, but perhaps not.
+#     execfile('Calendar.py')
 
 
-
-
-#run code
+#Run the code
+#datetime is (yyyy,month,day,hr,min)
 beginDate = d.datetime(2019,2,8,11,00)
-finishDate = d.datetime(2019,2,8,11,59)
+finishDate = d.datetime(2019,2,8,11,01)
 buildNewObservationArray('33.7788887','-84.52111053',beginDate,finishDate)

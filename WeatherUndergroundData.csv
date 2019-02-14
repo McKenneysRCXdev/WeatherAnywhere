@@ -1,3 +1,6 @@
-Time,Station,Temperature,Relative Humidity,Dew Point,Feels Like,Pressure,Wind Speed,Condition,Visibility,Wind Direction,Precipitation rate,Precipitation Accumulation
-2019-02-08 10:53:00,Atlanta/Fulton,52,59,38,52,29.45,14,Fair,10,NW,0,
-2019-02-08 11:53:00,Atlanta/Fulton,53,47,33,53,29.46,17,Fair,10,NW,0,
+"['Time' 'Station' 'Temperature' 'Relative Humidity' 'Dew Point'
+ 'Feels Like' 'Pressure' 'Wind Speed' 'Condition' 'Visibility'
+ 'Wind Direction' 'Precipitation rate' 'Precipitation Accumulation']"
+2018-12-28 14:52:00,Atlanta,63,81,57,63,28.93,6,Cloudy,10,W,0,
+2018-12-28 15:31:00,Atlanta,62,86,58,62,28.93,3,Cloudy,10,W,0,
+2018-12-28 15:52:00,Atlanta,62,86,58,62,28.94,3,Cloudy,10,W,0,
